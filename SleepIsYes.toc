@@ -1,0 +1,9 @@
+## Interface: 80000
+## Title: SleepIsYes
+## Notes: Voting Addon
+## Version: 0.1
+## Author: Scientist
+## DefaultState: Enabled
+## SavedVariables: siyDB
+
+SleepIsYes.lua
