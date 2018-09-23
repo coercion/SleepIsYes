@@ -4,13 +4,14 @@
 
 siyDB = siyDB or { scale = 1, hidden = false, lock = false, }
 local locale = GetLocale()
+local topframe = nil
 local frame = nil
 local window = nil
 local results = nil
 local votes = nil
 
 local function siy_SavePosition()
-    local point, _, relativePoint, xOfs, yOfs = window:GetPoint()
+    local point, _, relativePoint, xOfs, yOfs = topframe:GetPoint()
     if not siyDB.Position then
         siyDB.Position = {}
     end
@@ -22,9 +23,9 @@ end
 
 local function siy_LoadPosition()
     if siyDB.Position then
-        window:SetPoint(siyDB.Position.point,UIParent,siyDB.Position.relativePoint,siyDB.Position.xOfs,siyDB.Position.yOfs)
+        topframe:SetPoint(siyDB.Position.point,UIParent,siyDB.Position.relativePoint,siyDB.Position.xOfs,siyDB.Position.yOfs)
     else
-        window:SetPoint("TOPLEFT", UIParent, "CENTER")
+        topframe:SetPoint("TOPLEFT", UIParent, "CENTER")
     end
 end
 
@@ -50,6 +51,8 @@ local function siy_add_option(opt)
 
     local h = window:GetHeight()
     window:SetHeight(h+30)
+    h = topframe:GetHeight()
+    topframe:SetHeight(h+30)
 
     window.answers[options.count]:Show()
     window.answers.count = options.count
@@ -78,18 +81,20 @@ local function siy_reset()
     window.answers.count = 2
     window:SetHeight(150)
     results:SetHeight(150)
+    topframe:SetHeight(200)
 end
 
 local function siy_close_window()
     siy_reset()
-    window:Hide()
-    results:Hide()
+    topframe:Hide();
+    --window:Hide()
+    --results:Hide()
 end
 
 local function siy_CreateResults()
 
     if results == nil then
-        results = CreateFrame("Frame", nil, UIParent)
+        results = CreateFrame("Frame", nil, topframe)
     end
 
     results:SetMovable(false)
@@ -97,7 +102,7 @@ local function siy_CreateResults()
     results:SetHeight(150)
     results:SetClampedToScreen(true)
 
-    results:SetPoint("TOPLEFT", window, "TOPRIGHT")
+    results:SetPoint("TOPLEFT", topframe, "TOPLEFT", 0, -50)
     --results:SetScript("OnMouseDown",function(self,button) if button == "LeftButton" then self:StartMoving() end end)
     --results:SetScript("OnMouseUp",function(self,button) if button == "LeftButton" then self:StopMovingOrSizing() siy_SavePosition() end end)
 
@@ -106,7 +111,7 @@ local function siy_CreateResults()
     end
     results.texture:SetAllPoints(results)
     results.texture:SetTexture(nil)
-    results.texture:SetColorTexture(0,0,0,0.8)
+    --results.texture:SetColorTexture(0,0,0,0.8)
 
     if results.messages == nil then
         results.messages = {}
@@ -127,6 +132,7 @@ local function siy_CreateResults()
     results.titlestring:SetText('')
 
     results.messages[0] = results.titlestring
+    results:Hide()
     -- results.titlestring:SetTextColor(1,0,0,1)
 end
 
@@ -155,19 +161,75 @@ local function siy_SendPoll()
     end
 end
 
+local function siy_CreateTopFrame()
+    topframe = CreateFrame("Frame", nil, UIParent)
+    topframe:SetMovable(true)
+    topframe:SetWidth(300)
+    topframe:SetHeight(170)
+    topframe:SetFrameStrata("LOW")
+    topframe:SetClampedToScreen(true)
+
+    --topframe:SetPoint("TOPLEFT", UIParent, "CENTER")
+    topframe:SetScript("OnMouseDown",function(self,button) if button == "LeftButton" then self:StartMoving() end end)
+    topframe:SetScript("OnMouseUp",function(self,button) if button == "LeftButton" then self:StopMovingOrSizing() siy_SavePosition() end end)
+
+    topframe.texture = topframe:CreateTexture(nil, "LOW")
+    topframe.texture:SetAllPoints(topframe)
+    topframe.texture:SetTexture(nil)
+    topframe.texture:SetColorTexture(0,0,0,0.8)
+
+
+
+    topframe.tab1 = CreateFrame("Button", "tab1", topframe)
+    topframe.tab1:SetText("Create Poll")
+    topframe.tab1:SetSize(125, 25)
+    topframe.tab1:SetNormalFontObject("ChatFontNormal")
+    topframe.tab1:SetPoint("TOPLEFT", topframe, 15, -10)
+    topframe.tab1:SetFrameStrata("MEDIUM")
+    topframe.tab1:SetScript("OnClick", function(self) window:Show(); results:Hide(); end)
+
+    local texture = topframe.tab1:CreateTexture(nil, "LOW")
+    texture:SetTexture(nil)
+    texture:SetColorTexture(0.5,0.5,0.5,0.3)
+    texture:SetAllPoints()
+    texture:SetAllPoints(topframe.tab1)
+
+    topframe.tab2 = CreateFrame("Button", "tab2", topframe)
+    topframe.tab2:SetText("Results")
+    topframe.tab2:SetSize(125, 25)
+    topframe.tab2:SetNormalFontObject("ChatFontNormal")
+    topframe.tab2:SetPoint("LEFT", topframe.tab1, "RIGHT", 10, 0)
+    topframe.tab2:SetFrameStrata("MEDIUM")
+    topframe.tab2:SetScript("OnClick", function(self) results:Show(); window:Hide(); end)
+
+    local texture2 = topframe.tab2:CreateTexture(nil, "LOW")
+    texture2:SetTexture(nil)
+    texture2:SetColorTexture(0.5,0.5,0.5,0.3)
+    texture2:SetAllPoints()
+    texture2:SetAllPoints(topframe.tab2)
+
+
+    siy_LoadPosition()
+    topframe:Show()
+
+end
+
 local function siy_CreateWindow()
-    window = CreateFrame("Frame", nil, UIParent)
-    window:SetMovable(true)
+    window = CreateFrame("Frame", nil, topframe)
+    --window:SetMovable(true)
     window:SetWidth(300)
     window:SetHeight(120)
-    window:SetClampedToScreen(true)
-    window:SetScript("OnMouseDown",function(self,button) if button == "LeftButton" then self:StartMoving() end end)
-    window:SetScript("OnMouseUp",function(self,button) if button == "LeftButton" then self:StopMovingOrSizing() siy_SavePosition() end end)
+    --window:SetClampedToScreen(true)
+    --window:SetScript("OnMouseDown",function(self,button) if button == "LeftButton" then self:StartMoving() end end)
+    --window:SetScript("OnMouseUp",function(self,button) if button == "LeftButton" then self:StopMovingOrSizing() siy_SavePosition() end end)
+
+
+    window:SetPoint("TOPLEFT", topframe, "TOPLEFT", 0, -50)
 
     local texture = window:CreateTexture(nil, "LOW")
     texture:SetAllPoints(window)
     texture:SetTexture(nil)
-    texture:SetColorTexture(0,0,0,0.8)
+    --texture:SetColorTexture(0,0,0,0.8)
     window.texture = texture
 
     window.polltitle = CreateFrame("EditBox", nil, window, "InputBoxTemplate")
@@ -203,16 +265,21 @@ local function siy_CreateWindow()
     window.addoption:SetPoint("RIGHT", window.answers[1], 35, 0)
     window.addoption:SetFrameStrata("MEDIUM")
 
-    window.addoption:SetNormalTexture("Interface/Buttons/UI-Panel-Button-Up")
-    window.addoption:SetHighlightTexture("Interface/Buttons/UI-Panel-Button-Highlight")
-    window.addoption:SetPushedTexture("Interface/Buttons/UI-Panel-Button-Down")
+    window.addoption.texture = window.addoption:CreateTexture(nil, "LOW")
+    window.addoption.texture:SetTexture(nil)
+    window.addoption.texture:SetColorTexture(0.5,0.5,0.5,0.3)
+    window.addoption.texture:SetAllPoints()
 
-    window.addoption:GetNormalTexture():SetTexCoord(0, 0.625, 0, 0.6875)
-    window.addoption:GetNormalTexture():SetAllPoints()
-    window.addoption:GetHighlightTexture():SetTexCoord(0, 0.625, 0, 0.6875)
-    window.addoption:GetHighlightTexture():SetAllPoints()
-    window.addoption:GetPushedTexture():SetTexCoord(0, 0.625, 0, 0.6875)
-    window.addoption:GetPushedTexture():SetAllPoints()
+    -- window.addoption:SetNormalTexture("Interface/Buttons/UI-Panel-Button-Up")
+    -- window.addoption:SetHighlightTexture("Interface/Buttons/UI-Panel-Button-Highlight")
+    -- window.addoption:SetPushedTexture("Interface/Buttons/UI-Panel-Button-Down")
+
+    -- window.addoption:GetNormalTexture():SetTexCoord(0, 0.625, 0, 0.6875)
+    -- window.addoption:GetNormalTexture():SetAllPoints()
+    -- window.addoption:GetHighlightTexture():SetTexCoord(0, 0.625, 0, 0.6875)
+    -- window.addoption:GetHighlightTexture():SetAllPoints()
+    -- window.addoption:GetPushedTexture():SetTexCoord(0, 0.625, 0, 0.6875)
+    -- window.addoption:GetPushedTexture():SetAllPoints()
 
     window.addoption:SetScript("OnClick", function(self) siy_add_option(nil) end)
 
@@ -268,7 +335,6 @@ local function siy_CreateWindow()
     siy_add_option("Continue raiding")
     window:Show()
 
-    siy_LoadPosition()
 end
 
 
@@ -323,14 +389,22 @@ local function siy_CHAT_MSG_ADDON(prefix, message, dist, sender)
                     results:SetHeight(h+30)
                 end
 
-                results.messages[x].vote = CreateFrame("Button", "votebutton"..tostring(x), window)
-                results.messages[x].vote:SetSize(100, 30)
+                results.messages[x].vote = CreateFrame("Button", "votebutton"..tostring(x), results)
+                results.messages[x].vote:SetSize(220, 25)
                 results.messages[x].vote:SetNormalFontObject("ChatFontNormal")
-                results.messages[x].vote:SetPoint("TOP", results.messages[x], "TOP", 0, 0)
+                results.messages[x].vote:SetPoint("TOP", results.messages[x], "TOP", -15, 0)
                 results.messages[x].vote:SetFrameStrata("MEDIUM")
 
+
+                local texture = results.messages[x].vote:CreateTexture(nil, "LOW")
+                texture:SetAllPoints(results.messages[x].vote)
+                texture:SetTexture(nil)
+                texture:SetColorTexture(0.5,0.5,0.5,0.5)
+                texture:SetAllPoints()
+
+
                 results.messages[x].count = results.title:CreateFontString()
-                results.messages[x].count:SetPoint("RIGHT", results.messages[x].vote, "RIGHT", 80, 0)
+                results.messages[x].count:SetPoint("RIGHT", results.messages[x].vote, "RIGHT", 25, 0)
                 results.messages[x].count:SetFontObject("ChatFontNormal")
                 results.messages[x].count:SetWidth(300)
                 results.messages[x].count:SetJustifyH("RIGHT")
@@ -343,8 +417,11 @@ local function siy_CHAT_MSG_ADDON(prefix, message, dist, sender)
 
             results.messages[x].vote:Show();
             results.messages[x].count:Show();
-            results.messages[x]:Show();
+            --results.messages[x]:Show();
             --results.messages[x]:SetText(search)
+            topframe:Show()
+            results:Show()
+            window:Hide()
 
         end
 
@@ -371,14 +448,14 @@ local function siy_PLAYER_ENTERING_WORLD(self)
 end
 
 local function SleepIsYes_Command()
-    if window:IsVisible() then
+    if topframe:IsVisible() then
         siy_reset();
-        window:Hide()
-        results:Hide()
+        topframe:Hide()
+        --results:Hide()
     else
         siy_reset();
-        window:Show();
-        results:Show();
+        topframe:Show();
+        --results:Show();
     end
 end
 
@@ -395,14 +472,15 @@ local function siy_OnLoad(self)
         end
     end
 
+    siy_CreateTopFrame()
     siy_CreateWindow()
     siy_CreateResults()
 
     SlashCmdList["SleepIsYes"] = SleepIsYes_Command
     SLASH_SleepIsYes1 = "/siy"
 
-    local regpre = C_ChatInfo.GetRegisteredAddonMessagePrefixes()
-    ChatFrame1:AddMessage(regpre)
+    -- local regpre = C_ChatInfo.GetRegisteredAddonMessagePrefixes()
+    -- ChatFrame1:AddMessage(tostring(regpre))
     ChatFrame1:AddMessage("siy by Scientist",0,1,0)
 end
 
