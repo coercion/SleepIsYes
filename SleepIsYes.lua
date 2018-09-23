@@ -182,9 +182,9 @@ local function siy_CreateTopFrame()
 
     topframe.tab1 = CreateFrame("Button", "tab1", topframe)
     topframe.tab1:SetText("Create Poll")
-    topframe.tab1:SetSize(125, 25)
+    topframe.tab1:SetSize(115, 25)
     topframe.tab1:SetNormalFontObject("ChatFontNormal")
-    topframe.tab1:SetPoint("TOPLEFT", topframe, 15, -10)
+    topframe.tab1:SetPoint("TOPLEFT", topframe, 10, -10)
     topframe.tab1:SetFrameStrata("MEDIUM")
     topframe.tab1:SetScript("OnClick", function(self) window:Show(); results:Hide(); end)
 
@@ -196,7 +196,7 @@ local function siy_CreateTopFrame()
 
     topframe.tab2 = CreateFrame("Button", "tab2", topframe)
     topframe.tab2:SetText("Results")
-    topframe.tab2:SetSize(125, 25)
+    topframe.tab2:SetSize(115, 25)
     topframe.tab2:SetNormalFontObject("ChatFontNormal")
     topframe.tab2:SetPoint("LEFT", topframe.tab1, "RIGHT", 10, 0)
     topframe.tab2:SetFrameStrata("MEDIUM")
@@ -207,6 +207,23 @@ local function siy_CreateTopFrame()
     texture2:SetColorTexture(0.5,0.5,0.5,0.3)
     texture2:SetAllPoints()
     texture2:SetAllPoints(topframe.tab2)
+
+
+    topframe.close = CreateFrame("Button", "closebutton", topframe)
+    topframe.close:SetText("X")
+    topframe.close:SetSize(30, 25)
+    topframe.close:SetNormalFontObject("ChatFontNormal")
+    topframe.close:SetPoint("LEFT", topframe.tab2, "RIGHT", 10, 0)
+    topframe.close:SetFrameStrata("MEDIUM")
+
+    local texture3 = topframe.close:CreateTexture(nil, "LOW")
+    texture3:SetTexture(nil)
+    texture3:SetColorTexture(0.5,0.5,0.5,0.3)
+    texture3:SetAllPoints()
+    texture3:SetAllPoints(topframe.close)
+
+    topframe.close:SetScript("OnClick", function(self) siy_close_window() end)
+
 
 
     siy_LoadPosition()
@@ -288,46 +305,24 @@ local function siy_CreateWindow()
     --
     window.submit = CreateFrame("Button", "submitbutton", window)
     window.submit:SetText("Submit Poll!")
-    window.submit:SetSize(100, 30)
+    window.submit:SetSize(280, 25)
     window.submit:SetNormalFontObject("ChatFontNormal")
     window.submit:SetPoint("BOTTOM", window, 0, 10)
     window.submit:SetFrameStrata("MEDIUM")
 
-    window.submit:SetNormalTexture("Interface/Buttons/UI-Panel-Button-Up")
-    window.submit:SetHighlightTexture("Interface/Buttons/UI-Panel-Button-Highlight")
-    window.submit:SetPushedTexture("Interface/Buttons/UI-Panel-Button-Down")
+    local texture1 = window.submit:CreateTexture(nil, "LOW")
+    texture1:SetTexture(nil)
+    texture1:SetColorTexture(0.5,0.5,0.5,0.3)
+    texture1:SetAllPoints()
+    texture1:SetAllPoints(window.submit)
 
-    window.submit:GetNormalTexture():SetTexCoord(0, 0.625, 0, 0.6875)
-    window.submit:GetNormalTexture():SetAllPoints()
-    window.submit:GetHighlightTexture():SetTexCoord(0, 0.625, 0, 0.6875)
-    window.submit:GetHighlightTexture():SetAllPoints()
-    window.submit:GetPushedTexture():SetTexCoord(0, 0.625, 0, 0.6875)
-    window.submit:GetPushedTexture():SetAllPoints()
 
     window.submit:SetScript("OnClick", siy_SendPoll)
 
     ---
     --
     --
-    window.addoption = CreateFrame("Button", "closebutton", window)
-    window.addoption:SetText("X")
-    window.addoption:SetSize(30, 30)
-    window.addoption:SetNormalFontObject("ChatFontNormal")
-    window.addoption:SetPoint("BOTTOMLEFT", window, 5, 10)
-    window.addoption:SetFrameStrata("MEDIUM")
-
-    window.addoption:SetNormalTexture("Interface/Buttons/UI-Panel-Button-Up")
-    window.addoption:SetHighlightTexture("Interface/Buttons/UI-Panel-Button-Highlight")
-    window.addoption:SetPushedTexture("Interface/Buttons/UI-Panel-Button-Down")
-
-    window.addoption:GetNormalTexture():SetTexCoord(0, 0.625, 0, 0.6875)
-    window.addoption:GetNormalTexture():SetAllPoints()
-    window.addoption:GetHighlightTexture():SetTexCoord(0, 0.625, 0, 0.6875)
-    window.addoption:GetHighlightTexture():SetAllPoints()
-    window.addoption:GetPushedTexture():SetTexCoord(0, 0.625, 0, 0.6875)
-    window.addoption:GetPushedTexture():SetAllPoints()
-
-    window.addoption:SetScript("OnClick", function(self) siy_close_window() end)
+    
 
     --window.polltitle:Show()
 
@@ -353,7 +348,7 @@ end
 local function siy_CHAT_MSG_ADDON(prefix, message, dist, sender)
     --ChatFrame1:AddMessage("PREFIX "..prefix.." _msg_ "..message.." _dist_"..dist.." _sender_ "..sender )
     if prefix == "SIYP" then
-        ChatFrame1:AddMessage("PREFIX "..prefix.." _msg_ "..message.." _dist_"..dist.." _sender_ "..sender )
+        --ChatFrame1:AddMessage("PREFIX "..prefix.." _msg_ "..message.." _dist_"..dist.." _sender_ "..sender )
 
 
         local mtable = {}
