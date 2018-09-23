@@ -351,7 +351,7 @@ end
     -- results.titlestring:SetText('temp question')
 
 local function siy_CHAT_MSG_ADDON(prefix, message, dist, sender)
-    ChatFrame1:AddMessage("PREFIX "..prefix.." _msg_ "..message.." _dist_"..dist.." _sender_ "..sender )
+    --ChatFrame1:AddMessage("PREFIX "..prefix.." _msg_ "..message.." _dist_"..dist.." _sender_ "..sender )
     if prefix == "SIYP" then
         ChatFrame1:AddMessage("PREFIX "..prefix.." _msg_ "..message.." _dist_"..dist.." _sender_ "..sender )
 
