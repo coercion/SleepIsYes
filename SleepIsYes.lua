@@ -349,7 +349,7 @@ local function siy_CHAT_MSG_ADDON(prefix, message, dist, sender)
     --ChatFrame1:AddMessage("PREFIX "..prefix.." _msg_ "..message.." _dist_"..dist.." _sender_ "..sender )
     if prefix == "SIYP" then
         --ChatFrame1:AddMessage("PREFIX "..prefix.." _msg_ "..message.." _dist_"..dist.." _sender_ "..sender )
-
+        siy_reset();
 
         local mtable = {}
         local i = 0
@@ -432,7 +432,16 @@ local function siy_CHAT_MSG_ADDON(prefix, message, dist, sender)
             count = tonumber(results.messages[index].count:GetText())
         end
         if count then
+            if results.messages[sender] ~= nil then
+                local oldindex = tonumber(results.messages[sender])
+                local oldcount = tonumber(results.messages[oldindex].count:GetText())
+                results.messages[oldindex].count:SetText(tostring(oldcount-1))
+                if oldcount == count then
+                    count = count -1
+                end
+            end
             results.messages[index].count:SetText(tostring(count+1))
+            results.messages[sender] = index;
         end
     end
 end
@@ -458,14 +467,14 @@ local function siy_OnLoad(self)
     self:RegisterEvent("PLAYER_ENTERING_WORLD")
     self:RegisterEvent("CHAT_MSG_ADDON")
 
-    local ok = C_ChatInfo.RegisterAddonMessagePrefix("SIYP")
-    if ok then
-        ChatFrame1:AddMessage("Registered SIYP")
-        ok = C_ChatInfo.RegisterAddonMessagePrefix("SIYR")
-        if ok then
-            ChatFrame1:AddMessage("Registered SIYR")
-        end
-    end
+    -- local ok = C_ChatInfo.RegisterAddonMessagePrefix("SIYP")
+    -- if ok then
+    --     ChatFrame1:AddMessage("Registered SIYP")
+    --     ok = C_ChatInfo.RegisterAddonMessagePrefix("SIYR")
+    --     if ok then
+    --         ChatFrame1:AddMessage("Registered SIYR")
+    --     end
+    -- end
 
     siy_CreateTopFrame()
     siy_CreateWindow()
