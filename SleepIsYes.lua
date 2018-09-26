@@ -9,6 +9,7 @@ local frame = nil
 local window = nil
 local results = nil
 local votes = nil
+local playerframe = nil
 
 local function siy_SavePosition()
     local point, _, relativePoint, xOfs, yOfs = topframe:GetPoint()
@@ -27,6 +28,72 @@ local function siy_LoadPosition()
     else
         topframe:SetPoint("TOPLEFT", UIParent, "CENTER")
     end
+end
+
+local function siy_show_players(index)
+    if playerframe == nil then
+        playerframe = CreateFrame("Frame", nil, UIParent)
+
+        playerframe:SetMovable(false)
+        playerframe:SetClampedToScreen(true)
+
+        playerframe:SetPoint("TOPLEFT", topframe, "TOPRIGHT", 5, 0)
+        playerframe.texture = playerframe:CreateTexture(nil, "LOW")
+        playerframe.texture:SetAllPoints(playerframe)
+        playerframe.texture:SetTexture(nil)
+        playerframe.texture:SetColorTexture(0,0,0,0.8)
+    end
+
+    playerframe:SetWidth(200)
+    playerframe:SetHeight(16)
+
+    if playerframe.list == nil then
+        playerframe.list = {}
+    end
+
+    for i, v in ipairs(playerframe.list) do
+        v:SetText('')
+    end
+
+    local total = 0
+
+    for i, v in ipairs(results.messages[index].players) do
+        if playerframe.list[i] == nil then
+            playerframe.list[i] = playerframe:CreateFontString()
+        end
+        playerframe.list[i]:SetPoint("LEFT", playerframe, "TOPLEFT", 10, i*-16)
+        playerframe.list[i]:SetFontObject("ChatFontNormal")
+        playerframe.list[i]:SetWidth(200)
+        playerframe.list[i]:SetJustifyH("LEFT")
+
+        playerframe.list[i]:SetText(v)
+        playerframe:SetHeight(playerframe:GetHeight() + 16)
+        total = total + 1
+    end
+    
+    -- for i, v in ipairs(results.messages[index].players) do
+    --     if playerframe.list[i+1] == nil then
+    --         playerframe.list[i+1] = playerframe:CreateFontString()
+    --     end
+    --     playerframe.list[i+1]:SetPoint("LEFT", playerframe, "TOPLEFT", 10, (i+1)*-16)
+    --     playerframe.list[i+1]:SetFontObject("ChatFontNormal")
+    --     playerframe.list[i+1]:SetWidth(200)
+    --     playerframe.list[i+1]:SetJustifyH("LEFT")
+
+    --     playerframe.list[i+1]:SetText(v)
+    --     playerframe:SetHeight(playerframe:GetHeight() + 16)
+    -- end
+
+    if total > 0 then
+        playerframe:Show()
+    else
+        playerframe:Hide()
+    end
+end
+
+local function siy_hide_players(index)
+
+    playerframe:Hide()
 end
 
 local function siy_add_option(opt)
@@ -138,8 +205,8 @@ end
 
 local function siy_sendvote(index)
     C_ChatInfo.SendAddonMessage("SIYR", tostring(index), "GUILD");
+    siy_show_players(index)
 end
-
 
 local function siy_SendPoll()
     local bytecount = window.polltitle:GetNumLetters()
@@ -398,14 +465,18 @@ local function siy_CHAT_MSG_ADDON(prefix, message, dist, sender)
                 texture:SetAllPoints()
 
 
+                results.messages[x].players = {}
+
                 results.messages[x].count = results.title:CreateFontString()
                 results.messages[x].count:SetPoint("RIGHT", results.messages[x].vote, "RIGHT", 25, 0)
                 results.messages[x].count:SetFontObject("ChatFontNormal")
                 results.messages[x].count:SetWidth(300)
                 results.messages[x].count:SetJustifyH("RIGHT")
 
-                results.messages[x].vote:SetScript("OnClick", function(self) siy_sendvote(x) end)
+                results.messages[x].vote:SetScript("OnEnter", function(self) siy_show_players(x) end)
+                results.messages[x].vote:SetScript("OnLeave", function(self) siy_hide_players(x) end)
 
+                results.messages[x].vote:SetScript("OnClick", function(self) siy_sendvote(x) end)                
             end
             results.messages[x].count:SetText("0")
             results.messages[x].vote:SetText(search)
@@ -439,9 +510,21 @@ local function siy_CHAT_MSG_ADDON(prefix, message, dist, sender)
                 if oldcount == count then
                     count = count -1
                 end
+
+
+                for i, v in ipairs(results.messages[oldindex].players) do
+                    if v == sender then
+                        table.remove(results.messages[oldindex].players, i)
+                        break
+                    end
+                end
+
             end
             results.messages[index].count:SetText(tostring(count+1))
             results.messages[sender] = index;
+
+            table.insert(results.messages[index].players, sender)
+
         end
     end
 end
@@ -467,14 +550,14 @@ local function siy_OnLoad(self)
     self:RegisterEvent("PLAYER_ENTERING_WORLD")
     self:RegisterEvent("CHAT_MSG_ADDON")
 
-    -- local ok = C_ChatInfo.RegisterAddonMessagePrefix("SIYP")
-    -- if ok then
-    --     ChatFrame1:AddMessage("Registered SIYP")
-    --     ok = C_ChatInfo.RegisterAddonMessagePrefix("SIYR")
-    --     if ok then
-    --         ChatFrame1:AddMessage("Registered SIYR")
-    --     end
-    -- end
+    local ok = C_ChatInfo.RegisterAddonMessagePrefix("SIYP")
+    if ok then
+        ChatFrame1:AddMessage("Registered SIYP")
+        ok = C_ChatInfo.RegisterAddonMessagePrefix("SIYR")
+        if ok then
+            ChatFrame1:AddMessage("Registered SIYR")
+        end
+    end
 
     siy_CreateTopFrame()
     siy_CreateWindow()
