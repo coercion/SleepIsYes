@@ -135,6 +135,10 @@ local function siy_reset()
         results.messages[x].count:Hide();
         results.messages[x].count:SetText(nil)
         results.messages[x]:Hide();
+
+        for i, v in ipairs(results.messages[x].players) do
+            table.remove(results.messages[x].players, i)
+        end
     end
 
     for x in ipairs(window.answers) do
@@ -149,6 +153,10 @@ local function siy_reset()
     window:SetHeight(150)
     results:SetHeight(150)
     topframe:SetHeight(200)
+
+    for i, v in pairs(results.players) do
+        results.players[i] = nil
+    end
 end
 
 local function siy_close_window()
@@ -162,6 +170,7 @@ local function siy_CreateResults()
 
     if results == nil then
         results = CreateFrame("Frame", nil, topframe)
+        results.players = {}
     end
 
     results:SetMovable(false)
@@ -503,28 +512,30 @@ local function siy_CHAT_MSG_ADDON(prefix, message, dist, sender)
             count = tonumber(results.messages[index].count:GetText())
         end
         if count then
-            if results.messages[sender] ~= nil then
-                local oldindex = tonumber(results.messages[sender])
+            if results.players[sender] ~= nil then
+                local oldindex = tonumber(results.players[sender])
                 local oldcount = tonumber(results.messages[oldindex].count:GetText())
-                results.messages[oldindex].count:SetText(tostring(oldcount-1))
-                if oldcount == count then
-                    count = count -1
-                end
 
+                if oldindex ~= index then
+                    results.messages[oldindex].count:SetText(tostring(oldcount-1))
 
-                for i, v in ipairs(results.messages[oldindex].players) do
-                    if v == sender then
-                        table.remove(results.messages[oldindex].players, i)
-                        break
+                    for i, v in ipairs(results.messages[oldindex].players) do
+                        if v == sender then
+                            table.remove(results.messages[oldindex].players, i)
+                            break
+                        end
                     end
+
+                    results.messages[index].count:SetText(tostring(count+1))
+                    results.players[sender] = index;
+                    table.insert(results.messages[index].players, sender)
                 end
 
+            else
+                results.messages[index].count:SetText(tostring(count+1))
+                results.players[sender] = index;
+                table.insert(results.messages[index].players, sender)
             end
-            results.messages[index].count:SetText(tostring(count+1))
-            results.messages[sender] = index;
-
-            table.insert(results.messages[index].players, sender)
-
         end
     end
 end
