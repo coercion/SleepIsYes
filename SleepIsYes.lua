@@ -92,7 +92,6 @@ local function siy_show_players(index)
 end
 
 local function siy_hide_players(index)
-
     playerframe:Hide()
 end
 
@@ -162,8 +161,6 @@ end
 local function siy_close_window()
     siy_reset()
     topframe:Hide();
-    --window:Hide()
-    --results:Hide()
 end
 
 local function siy_CreateResults()
@@ -179,15 +176,11 @@ local function siy_CreateResults()
     results:SetClampedToScreen(true)
 
     results:SetPoint("TOPLEFT", topframe, "TOPLEFT", 0, -50)
-    --results:SetScript("OnMouseDown",function(self,button) if button == "LeftButton" then self:StartMoving() end end)
-    --results:SetScript("OnMouseUp",function(self,button) if button == "LeftButton" then self:StopMovingOrSizing() siy_SavePosition() end end)
-
     if not results.texture then
         results.texture = results:CreateTexture(nil, "LOW")
     end
     results.texture:SetAllPoints(results)
     results.texture:SetTexture(nil)
-    --results.texture:SetColorTexture(0,0,0,0.8)
 
     if results.messages == nil then
         results.messages = {}
@@ -226,7 +219,6 @@ local function siy_SendPoll()
     if bytecount > 250 then
         ChatFrame1:AddMessage("SIY Too many characters. Max 250 (question + answers)")
     else
-        --ChatFrame1:AddMessage("sending poll with "..tostring(bytecount).." bytes")
         local msg = window.polltitle:GetText();
 
         for i, opt in ipairs(window.answers) do
@@ -253,7 +245,6 @@ local function siy_CreateTopFrame()
     topframe.texture:SetAllPoints(topframe)
     topframe.texture:SetTexture(nil)
     topframe.texture:SetColorTexture(0,0,0,0.8)
-
 
 
     topframe.tab1 = CreateFrame("Button", "tab1", topframe)
@@ -300,11 +291,8 @@ local function siy_CreateTopFrame()
 
     topframe.close:SetScript("OnClick", function(self) siy_close_window() end)
 
-
-
     siy_LoadPosition()
     topframe:Show()
-
 end
 
 local function siy_CreateWindow()
@@ -395,36 +383,15 @@ local function siy_CreateWindow()
 
     window.submit:SetScript("OnClick", siy_SendPoll)
 
-    ---
-    --
-    --
-    
-
-    --window.polltitle:Show()
-
-    --window:SetPoint("CENTER", 0,0)
     siy_add_option("Continue raiding")
     window:Show()
 
 end
 
 
-    -- results.messages = {}
-    -- results.title = CreateFrame("Frame", nil, results)
-    -- results.title:SetWidth(300)
-
-    -- results.title:SetHeight(30)
-    -- results.title:SetPoint("TOPLEFT", results, "TOPLEFT")
-
-    -- results.titlestring = results.title:CreateFontString()
-    -- results.titlestring:SetPoint("TOP", results.title, "TOP", 0,-15)
-    -- results.titlestring:SetFontObject("ChatFontNormal")
-    -- results.titlestring:SetText('temp question')
-
 local function siy_CHAT_MSG_ADDON(prefix, message, dist, sender)
-    --ChatFrame1:AddMessage("PREFIX "..prefix.." _msg_ "..message.." _dist_"..dist.." _sender_ "..sender )
     if prefix == "SIYP" then
-        --ChatFrame1:AddMessage("PREFIX "..prefix.." _msg_ "..message.." _dist_"..dist.." _sender_ "..sender )
+        
         siy_reset();
 
         local mtable = {}
@@ -502,9 +469,6 @@ local function siy_CHAT_MSG_ADDON(prefix, message, dist, sender)
 
     elseif prefix == "SIYR" then
 
-        --ChatFrame1:AddMessage("PREFIX "..prefix.." _msg_ "..message.." _dist_"..dist.." _sender_ "..sender )
-        --ChatFrame1:AddMessage(tostring(tonumber(message)))
-
         local count
         local index = tonumber(message)
 
@@ -545,15 +509,33 @@ local function siy_PLAYER_ENTERING_WORLD(self)
 
 end
 
-local function SleepIsYes_Command()
-    if topframe:IsVisible() then
-        siy_reset();
-        topframe:Hide()
-        --results:Hide()
+local function siy_setscale(x)
+    topframe:SetScale(siyDB.scale)
+end
+
+local cmds = {
+    scale = function(x) siyDB.scale = x; siy_setscale(x) end,
+}
+
+local function SleepIsYes_Command(cmd)
+    local ctable = {}
+    for x in gmatch(cmd, "[^ ]+") do
+        tinsert(ctable, x)
+    end
+    local cb = cmds[ctable[1]]
+    if cb then
+        local s = tonumber(ctable[2])
+        cb(s)
     else
-        siy_reset();
-        topframe:Show();
-        --results:Show();
+        if topframe:IsVisible() then
+            siy_reset();
+            topframe:Hide()
+            --results:Hide()
+        else
+            siy_reset();
+            topframe:Show();
+            --results:Show();
+        end
     end
 end
 
