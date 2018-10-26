@@ -86,6 +86,7 @@ local function siy_show_players(index)
 
     if total > 0 then
         playerframe:Show()
+        playerframe:SetScale(siyDB.scale)
     else
         playerframe:Hide()
     end
@@ -292,7 +293,7 @@ local function siy_CreateTopFrame()
     topframe.close:SetScript("OnClick", function(self) siy_close_window() end)
 
     siy_LoadPosition()
-    topframe:Show()
+    --topframe:Show()
 end
 
 local function siy_CreateWindow()
@@ -562,6 +563,7 @@ local function siy_OnLoad(self)
     -- local regpre = C_ChatInfo.GetRegisteredAddonMessagePrefixes()
     -- ChatFrame1:AddMessage(tostring(regpre))
     ChatFrame1:AddMessage("siy by Scientist",0,1,0)
+    siy_close_window()
 end
 
 local eventhandler = {
